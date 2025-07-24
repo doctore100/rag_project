@@ -29,7 +29,6 @@ class DatabaseSettings(BaseModel):
     # 🗄️ Remote PostgresSQL configuration
     remote_db_user: str = Field(default="postgres", description="Remote PostgresSQL username")
     remote_db_password: SecretStr = Field(..., description="Remote database password")
-    remote_db_name: str = Field(..., description="Remote database name")
     remote_db_host: str = Field(default="localhost", description="Remote database host")
     remote_db_port: int = Field(default=5432, ge=1, le=65535, description="Remote PostgresSQL port")
 
@@ -38,7 +37,8 @@ class DatabaseSettings(BaseModel):
 
     # 📦 Vector DB collections
     # Permite múltiples colecciones o un solo nombre
-    vector_collection_names: List[float] = Field(default=[0.0], description="Name(s) of the vector collections")
+    vector_collection: List[float] = Field(default=[0.0], description="Name(s) of the vector collections")
+    remote_vector_collection_name: str = Field(..., description="Remote database name")
 
     @property
     def vector_db_uri(self) -> str:
