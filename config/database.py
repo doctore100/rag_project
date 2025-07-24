@@ -5,27 +5,28 @@ from pydantic import BaseModel, Field, SecretStr
 
 class DatabaseSettings(BaseModel):
     """
-    Configuration for database settings with functionalities for SSH tunneling and remote database connection.
+    Handles database connection settings and configuration for both remote PostgresSQL and
+    vector-based databases. Includes management of SSH tunneling and vector collection names
+    for seamless integration.
 
-    This class encapsulates all configurations related to establishing an SSH tunnel, connecting to
-    a remote PostgresSQL database, and binding a local port for forwarding. It also manages vector database
-    collection configurations and provides derived properties for database connectivity.
+    Designed to support secure connections to a remote PostgresSQL database, allowing optional
+    local port forwarding via SSH. Also provides support for vector database configurations.
+
     :ivar remote_db_user: Remote PostgresSQL username.
     :type remote_db_user: String
     :ivar remote_db_password: Remote database password.
     :type remote_db_password: SecretStr
-    :ivar remote_db_name: Remote database name.
-    :type remote_db_name: String
     :ivar remote_db_host: Remote database host.
     :type remote_db_host: String
-    :ivar remote_db_port: Remote PostgresSQL port number must be between 1 and 65535.
+    :ivar remote_db_port: Remote PostgresSQL port.
     :type remote_db_port: Integer
-    :ivar local_bind_port: Local port for SSH forwarding must be between 1 and 65535.
+    :ivar local_bind_port: Local port bound to the remote database for SSH forwarding.
     :type local_bind_port: Integer
-    :ivar vector_collection_names: Names of vector database collections.
-    :type vector_collection_names: List[str]
+    :ivar vector_collection: Name(s) of the vector collections.
+    :type vector_collection: List[float]
+    :ivar remote_vector_collection_name: Remote database name.
+    :type remote_vector_collection_name: String
     """
-
     # 🗄️ Remote PostgresSQL configuration
     remote_db_user: str = Field(default="postgres", description="Remote PostgresSQL username")
     remote_db_password: SecretStr = Field(..., description="Remote database password")
@@ -47,7 +48,7 @@ class DatabaseSettings(BaseModel):
         Se conecta al `localhost` localmente redirigido por el túnel a la base de datos remota.
         """
         return (
-            f"postgresql://{self.remote_db_user}:"
+            f"PostgresSQL://{self.remote_db_user}:"
             f"{self.remote_db_password.get_secret_value()}@"
             f"{self.remote_db_host}:{self.local_bind_port}/"
             f"{self.remote_db_name}"
