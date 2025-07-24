@@ -13,7 +13,8 @@ class Settings(BaseSettings):
     app_name: str = Field(default="Mi Proyecto", description="Nombre de la aplicación")
     version: str = Field(default="0.0.1", description="Versión")
     environment: Literal["development", "testing", "production"] = Field(
-        default="development"
+        default="development",
+        description="Environment type",
     )
     debug: bool = Field(default=False)
 
