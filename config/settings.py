@@ -33,8 +33,14 @@ class Settings(BaseSettings):
 
     @classmethod
     @field_validator("environment")
-    def validate_environment(cls,env_type):
+    def validate_environment(cls, env_type):
         allowed = ["development", "testing", "production"]
         if env_type.lower() not in allowed:
             raise ValueError(f"Environment must be one of {allowed}")
         return env_type.lower()
+
+    @property
+    def database_uri_with_env(self) -> str:
+        if self.environment == "development":
+            return self.database.vector_db_uri
+        return f"sqlite:///test_{self.database.name}.db"
