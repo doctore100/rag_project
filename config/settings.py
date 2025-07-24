@@ -30,8 +30,9 @@ class Settings(BaseSettings):
         case_sensitive=False
     )
 
+    @classmethod
     @field_validator("environment")
-    def validate_environment(cls, env_type):
+    def validate_environment(cls,env_type):
         allowed = ["development", "testing", "production"]
         if env_type.lower() not in allowed:
             raise ValueError(f"Environment must be one of {allowed}")
