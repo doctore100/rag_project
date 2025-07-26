@@ -26,7 +26,7 @@ class Settings(BaseSettings):
 
     # Pydantic Settings Model Configuration
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file='.env',
         env_file_encoding="utf-8",
         extra="allow",
         env_nested_delimiter="__",
