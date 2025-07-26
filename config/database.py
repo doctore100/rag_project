@@ -28,18 +28,18 @@ class DatabaseSettings(BaseModel):
     :type remote_vector_collection_name: String
     """
     # 🗄️ Remote PostgresSQL configuration
-    remote_db_user: str = Field(default="postgres", description="Remote PostgresSQL username")
-    remote_db_password: SecretStr = Field(..., description="Remote database password")
-    remote_db_host: str = Field(default="localhost", description="Remote database host")
-    remote_db_port: int = Field(default=5432, ge=1, le=65535, description="Remote PostgresSQL port")
+    db_user: str = Field(default="postgres", description="Remote PostgresSQL username")
+    db_password: SecretStr = Field(..., description="Remote database password")
+    db_host: str = Field(default="localhost", description="Remote database host")
+    db_port: int = Field(default=5432, ge=1, le=65535, description="Remote PostgresSQL port")
 
     # 🔀 Local port for SSH forwarding
     local_bind_port: int = Field(default=5433, ge=1, le=65535, description="Local port bound to the remote database")
 
     # 📦 Vector DB collections
     # Permite múltiples colecciones o un solo nombre
-    vector_collection: List[float] = Field(default=[0.0], description="Name(s) of the vector collections")
-    remote_vector_collection_name: str = Field(..., description="Remote database name")
+    default_collection: List[float] = Field(default=[0.0], description="Name(s) of the vector collections")
+    vector_collection: str = Field(..., description="Remote database name")
 
     @property
     def vector_db_uri(self) -> str:
@@ -48,8 +48,7 @@ class DatabaseSettings(BaseModel):
         Se conecta al `localhost` localmente redirigido por el túnel a la base de datos remota.
         """
         return (
-            f"PostgresSQL://{self.remote_db_user}:"
-            f"{self.remote_db_password.get_secret_value()}@"
-            f"{self.remote_db_host}:{self.local_bind_port}/"
-            f"{self.remote_db_name}"
+            f"PostgresSQL://{self.db_user}:"
+            f"{self.db_password.get_secret_value()}@"
+            f"{self.db_host}:{self.local_bind_port}/{self.vector_collection}"
         )
