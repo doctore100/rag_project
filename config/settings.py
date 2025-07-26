@@ -1,11 +1,12 @@
+from pathlib import Path
 from typing import Literal
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from database import DatabaseSettings
-from model_configuration import ModelConfiguration
-from ssh_connection import SSHConnection
+from .database import DatabaseSettings
+from .model_configuration import ModelConfiguration
+from .ssh_connection import SSHConnection
 
 
 class Settings(BaseSettings):
@@ -28,6 +29,7 @@ class Settings(BaseSettings):
         env_file=".env",
         env_file_encoding="utf-8",
         extra="allow",
+        env_nested_delimiter="__",
         case_sensitive=False
     )
 
@@ -44,3 +46,38 @@ class Settings(BaseSettings):
         if self.environment == "development":
             return self.database.vector_db_uri
         return f"sqlite:///test_{self.database.name}.db"
+
+    def validate_required_for_production(self):
+        """
+        Validates the required configurations and settings to ensure they meet secure
+        and production-ready standards. This method checks for appropriate values in
+        specific settings when the environment is set to production. If any of these
+        conditions fail, a ValueError is raised that includes details about the missing
+        or insecure configurations.
+
+        :raises ValueError: If any required fields are missing or have insecure values
+                            when `is_production` is True.
+        """
+        if self.is_production:
+            required_fields = []
+
+            if not self.auth.secret_key or len(self.auth.secret_key) < 32:
+                required_fields.append("AUTH__SECRET_KEY (min 32 chars)")
+
+            if self.database.password == "password" or len(self.database.password) < 8:
+                required_fields.append("DATABASE__PASSWORD (secure password)")
+
+            if self.debug:
+                required_fields.append("DEBUG should be False in production")
+
+            if required_fields:
+                raise ValueError(
+                    f"Production validation failed. Required: {', '.join(required_fields)}"
+                )
+
+    @classmethod
+    def from_env_file(cls, env_file: Path | None = None):
+        """Factory method para crear Settings con archivo .env específico"""
+        if env_file:
+            return cls(_env_file=env_file)
+        return cls()
