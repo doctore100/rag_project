@@ -20,8 +20,8 @@ class SSHConnection(BaseModel):
     :type password: SecretStr
     """
     # 🛡️ SSH Tunnel configuration
-    host: str = Field(..., description="The hostname or IP address of the remote server.", alias="SSH_HOST")
-    port: int = Field(default=22, ge=1, le=65535, description="SSH port", alias="SSH_PORT")
+    host: str = Field(..., description="The hostname or IP address of the remote server.")
+    port: int = Field(default=22, ge=1, le=65535, description="SSH port")
     # Use this if you haven't configured an SSH alias and need to connect using a username and password
     username: str = Field(default="admin", description="The username to use for authentication.")
     password: SecretStr = Field(default="admin", description="The password to use for authentication.")
