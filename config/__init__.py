@@ -15,7 +15,7 @@ def create_settings() -> Settings:
     depending on the environment (e.g., production validations, logging
     setup).
 
-    :raises ValueError: If required production settings are not satisfied
+    :raises ValueError: If required, production settings are not satisfied
         when in production mode.
 
     :return: The constructed Settings for the application.
@@ -37,7 +37,7 @@ def create_settings() -> Settings:
 
     selected_env_file = env_file_map.get(env_value, None)
 
-    # Instanciar Settings usando ese archivo
+    # Instance Settings using that file
     environment_settings = Settings.from_env_file(selected_env_file.name) if selected_env_file else Settings.from_env_file()
 
     # Validaciones y setup

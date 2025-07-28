@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field, SecretStr
+from sshtunnel import SSHTunnelForwarder
 
 
 class SSHConnection(BaseModel):
@@ -25,3 +26,27 @@ class SSHConnection(BaseModel):
     # Use this if you haven't configured an SSH alias and need to connect using a username and password
     username: str = Field(default="admin", description="The username to use for authentication.")
     password: SecretStr = Field(default="admin", description="The password to use for authentication.")
+
+    @property
+    def ssh_tunnel(self) -> str:
+        """Context manager para manejar el túnel SSH de forma segura"""
+        tunnel = None
+        try:
+            tunnel = SSHTunnelForwarder(
+                ssh_address_or_host=self.host,
+                ssh_port=self.port,
+                remote_bind_address=(self.REMOTE_DB_HOST, self.REMOTE_DB_PORT),
+                local_bind_address=('localhost', self.LOCAL_BIND_PORT)
+            )
+
+            tunnel.start()
+            yield tunnel
+
+        except Exception as e:
+            print(f"✗ Error creando túnel SSH: {e}")
+            raise
+        finally:
+            if tunnel and tunnel.is_active:
+                tunnel.stop()
+                print("✓ Túnel SSH cerrado")
+
