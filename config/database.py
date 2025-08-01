@@ -5,50 +5,37 @@ from pydantic import BaseModel, Field, SecretStr
 
 class DatabaseSettings(BaseModel):
     """
-    Handles database connection settings and configuration for both remote PostgresSQL and
-    vector-based databases. Includes management of SSH tunneling and vector collection names
-    for seamless integration.
+    Configuration settings for a database connection.
 
-    Designed to support secure connections to a remote PostgresSQL database, allowing optional
-    local port forwarding via SSH. Also provides support for vector database configurations.
+    This class represents settings for connecting to a remote PostgreSQL database,
+    with support for SSH forwarding and vector database collections. It allows the
+    specification of database credentials, connection details, and relevant
+    collection names for efficient database usage.
 
-    :ivar remote_db_user: Remote PostgresSQL username.
-    :type remote_db_user: String
-    :ivar remote_db_password: Remote database password.
-    :type remote_db_password: SecretStr
-    :ivar remote_db_host: Remote database host.
-    :type remote_db_host: String
-    :ivar remote_db_port: Remote PostgresSQL port.
-    :type remote_db_port: Integer
-    :ivar local_bind_port: Local port bound to the remote database for SSH forwarding.
-    :type local_bind_port: Integer
+    :ivar db_user: Remote PostgreSQL username.
+    :type db_user: str
+    :ivar db_password: Remote database password.
+    :type db_password: SecretStr
+    :ivar db_host: Remote database host.
+    :type db_host: str
+    :ivar db_port: Remote PostgreSQL port.
+    :type db_port: int
+    :ivar local_bind_port: Local port bound to the remote database, for SSH
+        forwarding.
+    :type local_bind_port: int
     :ivar vector_collection: Name(s) of the vector collections.
     :type vector_collection: List[float]
-    :ivar remote_vector_collection_name: Remote database name.
-    :type remote_vector_collection_name: String
+    :ivar collection_name: Remote database name.
+    :type collection_name: str
     """
     # 🗄️ Remote PostgresSQL configuration
     db_user: str = Field(default="postgres", description="Remote PostgresSQL username")
     db_password: SecretStr = Field(..., description="Remote database password")
     db_host: str = Field(default="localhost", description="Remote database host")
-    db_port: int = Field(default=5432, ge=1, le=65535, description="Remote PostgresSQL port")
 
-    # 🔀 Local port for SSH forwarding
-    local_bind_port: int = Field(default=5433, ge=1, le=65535, description="Local port bound to the remote database")
 
     # 📦 Vector DB collections
     # Permite múltiples colecciones o un solo nombre
-    default_collection: List[float] = Field(default=[0.0], description="Name(s) of the vector collections")
-    vector_collection: str = Field(..., description="Remote database name")
+    vector_collection: List[float] = Field(default=[0.0], description="Name(s) of the vector collections")
+    collection_name: str = Field(..., description="Remote database name")
 
-    @property
-    def vector_db_uri(self) -> str:
-        """
-        Construye la URI de conexión a la base de datos vectorial a través del túnel SSH.
-        Se conecta al `localhost` localmente redirigido por el túnel a la base de datos remota.
-        """
-        return (
-            f"PostgresSQL://{self.db_user}:"
-            f"{self.db_password.get_secret_value()}@"
-            f"{self.db_host}:{self.local_bind_port}/{self.vector_collection}"
-        )

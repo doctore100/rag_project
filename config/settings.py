@@ -1,8 +1,10 @@
 from pathlib import Path
-from typing import Literal
+from typing import Literal, Optional
+from contextlib import contextmanager
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from sshtunnel import SSHTunnelForwarder
 
 from .database import DatabaseSettings
 from .model_configuration import ModelConfiguration
@@ -18,6 +20,7 @@ class Settings(BaseSettings):
         description="Environment type",
     )
     debug: bool = Field(default=False)
+    tunnel: Optional[SSHTunnelForwarder] = None
 
     # Module-specific configurations
     model: ModelConfiguration
@@ -42,38 +45,32 @@ class Settings(BaseSettings):
         return env_type.lower()
 
     @property
-    def database_uri_with_env(self) -> str:
+    def ssh_connection_string(self) -> str:
         if self.environment == "development":
-            return self.database.vector_db_uri
-        return f"sqlite:///test_{self.database.name}.db"
+            return f"postgresql+psycopg://{self.database.db_user}:{self.database.db_password}@{self.database.db_host}:{self.ssh_connection.local_bind_port}/{self.database.collection_name}"
+        return f"sqlite:///test_{self.database.collection_name}.db"
 
-    def validate_required_for_production(self):
-        """
-        Validates the required configurations and settings to ensure they meet secure
-        and production-ready standards. This method checks for appropriate values in
-        specific settings when the environment is set to production. If any of these
-        conditions fail, a ValueError is raised that includes details about the missing
-        or insecure configurations.
+    def start_ssh_tunnel(self):
+        try:
+            self.tunnel = SSHTunnelForwarder(
+                ssh_address_or_host=(self.ssh_connection.host_name, self.ssh_connection.port),
+                remote_bind_address=("127.0.0.1", self.ssh_connection.db_port),
+                local_bind_address=("localhost", self.ssh_connection.local_bind_port),
+                allow_agent=True,
+            )
+            self.tunnel.start()
 
-        :raises ValueError: If any required fields are missing or have insecure values
-                            when `is_production` is True.
-        """
-        if self.is_production:
-            required_fields = []
+            yield self.tunnel
 
-            if not self.auth.secret_key or len(self.auth.secret_key) < 32:
-                required_fields.append("AUTH__SECRET_KEY (min 32 chars)")
+        except Exception as e:
+            print(f"✗ Error en túnel SSH: {e}")
+            self.tunnel.stop()
+            raise
 
-            if self.database.password == "password" or len(self.database.password) < 8:
-                required_fields.append("DATABASE__PASSWORD (secure password)")
-
-            if self.debug:
-                required_fields.append("DEBUG should be False in production")
-
-            if required_fields:
-                raise ValueError(
-                    f"Production validation failed. Required: {', '.join(required_fields)}"
-                )
+    def shutdown_ssh_tunnel(self):
+        if hasattr(self, 'tunnel') and self.tunnel and self.tunnel.is_active:
+            self.tunnel.stop()
+            print("✓ Túnel SSH cerrado")
 
     @classmethod
     def from_env_file(cls, env_file: Path | None = None):

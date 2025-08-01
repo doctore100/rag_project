@@ -1,3 +1,5 @@
+from contextlib import contextmanager
+
 from pydantic import BaseModel, Field, SecretStr
 from sshtunnel import SSHTunnelForwarder
 
@@ -21,32 +23,12 @@ class SSHConnection(BaseModel):
     :type password: SecretStr
     """
     # 🛡️ SSH Tunnel configuration
-    host: str = Field(..., description="The hostname or IP address of the remote server.")
+    host_name: str = Field(..., description="The hostname or IP address of the remote server.")
     port: int = Field(default=22, ge=1, le=65535, description="SSH port")
-    # Use this if you haven't configured an SSH alias and need to connect using a username and password
+
     username: str = Field(default="admin", description="The username to use for authentication.")
-    password: SecretStr = Field(default="admin", description="The password to use for authentication.")
+    db_port: int = Field(default=5432, ge=1, le=65535, description="Remote PostgresSQL port for SSH tunnel")
 
-    @property
-    def ssh_tunnel(self) -> str:
-        """Context manager para manejar el túnel SSH de forma segura"""
-        tunnel = None
-        try:
-            tunnel = SSHTunnelForwarder(
-                ssh_address_or_host=self.host,
-                ssh_port=self.port,
-                remote_bind_address=(self.REMOTE_DB_HOST, self.REMOTE_DB_PORT),
-                local_bind_address=('localhost', self.LOCAL_BIND_PORT)
-            )
-
-            tunnel.start()
-            yield tunnel
-
-        except Exception as e:
-            print(f"✗ Error creando túnel SSH: {e}")
-            raise
-        finally:
-            if tunnel and tunnel.is_active:
-                tunnel.stop()
-                print("✓ Túnel SSH cerrado")
+    # 🔀 Local port for SSH forwarding
+    local_bind_port: int = Field(default=5433, ge=1, le=65535, description="Local port bound to the remote database")
 
