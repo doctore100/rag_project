@@ -27,7 +27,6 @@ class SSHConnection(BaseModel):
     port: int = Field(default=22, ge=1, le=65535, description="SSH port")
 
     username: str = Field(default="admin", description="The username to use for authentication.")
-    db_port: int = Field(default=5432, ge=1, le=65535, description="Remote PostgresSQL port for SSH tunnel")
 
     # 🔀 Local port for SSH forwarding
     local_bind_port: int = Field(default=5433, ge=1, le=65535, description="Local port bound to the remote database")
