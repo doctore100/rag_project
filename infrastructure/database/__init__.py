@@ -18,7 +18,7 @@ class DatabaseManager:
     @property
     def database_uri(self) -> str:
         if self.settings.environment == "development":
-            return f"postgresql+psycopg://{self.settings.database.db_user}:{self.settings.database.db_password}@{self.settings.database.db_host}/{self.settings.database.collection_name}"
+            return f"postgresql+psycopg://{self.settings.database.db_user}:{self.settings.database.db_password}@{self.settings.database.db_host}:{self.settings.ssh_connection.db_port}/{self.settings.database.collection_name}"
         return f"sqlite:///test_{self.settings.database.collection_name}.db"
     def __create_vector_db_if_not_exist(self):
         pass
