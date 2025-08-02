@@ -1,2 +1,2 @@
-from .database import LangChainVectorDatabase
+from .database import DatabaseManager
 

@@ -2,7 +2,7 @@ from config import create_settings as s
 from sshtunnel import SSHTunnelForwarder
 from typing import Optional
 
-class ConnectionManager:
+class SSHConnectionManager:
     def __init__(self):
         self.settings = s()
     tunnel: Optional[SSHTunnelForwarder] = None

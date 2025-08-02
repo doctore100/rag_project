@@ -32,6 +32,7 @@ class DatabaseSettings(BaseModel):
     db_user: str = Field(default="postgres", description="Remote PostgresSQL username")
     db_password: SecretStr = Field(..., description="Remote database password")
     db_host: str = Field(default="localhost", description="Remote database host")
+    db_name:str = Field(default="postgres", description="Remote database name")
 
 
     # 📦 Vector DB collections

@@ -3,7 +3,7 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from config import create_settings
-from infrastructure.database import LangChainVectorDatabase
+from infrastructure.database import DatabaseManager
 
 settings = create_settings()
 
@@ -17,7 +17,7 @@ def main():
     chunks = text_splitter.split_documents(documents)
     embeddings = OpenAIEmbeddings(model=settings.model.embedding_name, api_key=settings.model.api_key)
 
-    manage_db = LangChainVectorDatabase(model_embeddings=embeddings)
+    manage_db = DatabaseManager(model_embeddings=embeddings)
 
     tunnel = None
     try:
