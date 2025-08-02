@@ -25,7 +25,8 @@ def main():
         tunnel = next(tunnel_generator)
         if tunnel.is_active:
             print("Tunnel is active")
-            vector_store = manage_db.initialize_vector_store()
+            manage_db.initialize_vector_store()
+
             print("✓ Vector store inicializado y listo para usar")
             # Aquí puedes seguir usando vector_store
     except Exception as e:

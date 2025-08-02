@@ -8,7 +8,14 @@ class LangChainVectorDatabase:
         self.collection_name = collection_name
         self.embeddings = model_embeddings
         self.vector_store = None
+    """
+    PRIMERO --> Crear la base de datos se debe inicializar el modelo de embeddings  para soporte de vector
+    con el comando CREATE EXTENSION IF NOT EXISTS vector; es un metodo privado que implemente esta funcionalidad
+    antes de inicializar PGVector
 
+    """
+    def __create_vector_db_if_not_exist(self):
+        pass
     def initialize_vector_store(self, pre_delete_collection: bool = True):
         """
         Initializes the vector store using the provided configuration and connection
