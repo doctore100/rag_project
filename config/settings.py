@@ -41,14 +41,6 @@ class Settings(BaseSettings):
             raise ValueError(f"Environment must be one of {allowed}")
         return env_type.lower()
 
-    @property
-    def ssh_connection_string(self) -> str:
-        if self.environment == "development":
-            return f"postgresql+psycopg://{self.database.db_user}:{self.database.db_password}@{self.database.db_host}:{self.ssh_connection.local_bind_port}/{self.database.collection_name}"
-        return f"sqlite:///test_{self.database.collection_name}.db"
-
-
-
     @classmethod
     def from_env_file(cls, env_file: Path | None = None):
         """Factory method para crear Settings con archivo .env específico"""

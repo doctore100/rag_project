@@ -14,6 +14,12 @@ class LangChainVectorDatabase:
     antes de inicializar PGVector
 
     """
+
+    @property
+    def ssh_connection_string(self) -> str:
+        if self.environment == "development":
+            return f"postgresql+psycopg://{self.database.db_user}:{self.database.db_password}@{self.database.db_host}:{self.ssh_connection.local_bind_port}/{self.database.collection_name}"
+        return f"sqlite:///test_{self.database.collection_name}.db"
     def __create_vector_db_if_not_exist(self):
         pass
     def initialize_vector_store(self, pre_delete_collection: bool = True):
