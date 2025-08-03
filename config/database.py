@@ -5,38 +5,41 @@ from pydantic import BaseModel, Field, SecretStr
 
 class DatabaseSettings(BaseModel):
     """
-    Manages database configuration settings required to connect to a remote PostgreSQL server and organize vector
-    collections.
+    Configuration settings for a database connection.
 
-    This class defines several fields to configure the details needed to connect to a remote PostgreSQL database, such as
-    username, password, host, database name, and port. In addition, it allows specifying details regarding vector collections
-    in the database.
+    This class represents settings for connecting to a remote PostgreSQL database,
+    with support for SSH forwarding and vector database collections. It allows the
+    specification of database credentials, connection details, and relevant
+    collection names for efficient database usage.
 
-    :ivar db_user: Remote PostgresSQL username.
-    :type db_user: Str
+    :ivar db_user: Remote PostgreSQL username.
+    :type db_user: str
     :ivar db_password: Remote database password.
     :type db_password: SecretStr
     :ivar db_host: Remote database host.
-    :type db_host: Str
-    :ivar db_name: Remote database name.
-    :type db_name: str
+    :type db_host: str
+    :ivar db_port: Remote PostgreSQL port.
+    :type db_port: int
+    :ivar local_bind_port: Local port bound to the remote database, for SSH
+        forwarding.
+    :type local_bind_port: int
     :ivar vector_collection: Name(s) of the vector collections.
     :type vector_collection: List[float]
     :ivar collection_name: Remote database name.
     :type collection_name: str
-    :ivar db_port: Remote PostgresSQL port for an SSH tunnel. Must be between 1 and 65535.
-    :type db_port: int
     """
     # 🗄️ Remote PostgresSQL configuration
-    db_user: str = Field(default="postgres", description="Remote PostgresSQL username")
+    db_user: str = Field(default="", description="Remote PostgresSQL username")
     db_password: SecretStr = Field(..., description="Remote database password")
     db_host: str = Field(default="localhost", description="Remote database host")
-    db_name:str = Field(default="postgres", description="Remote database name")
+    db_name:str = Field(default="", description="Remote database name")
+    db_port: int = Field(default=5432, ge=1, le=65535, description="Remote PostgresSQL port for SSH tunnel")
 
 
     # 📦 Vector DB collections
     # Permite múltiples colecciones o un solo nombre
-    collection_name: str = Field(..., description="Remote database name")
-    db_port: int = Field(default=5432, ge=1, le=65535, description="Remote PostgresSQL port for SSH tunnel")
+    # vector_collection: List[float] = Field(default=[0.0], description="Name(s) of the vector collections")
+    collection_name: str = Field(..., description="Remote collection name")
+    collection_bb_name: str = Field(..., description="Name of database for storing vector embeddings")
 
 
