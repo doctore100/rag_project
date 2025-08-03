@@ -14,7 +14,7 @@ def main():
     loader = PyPDFLoader(file_path_doc)
     documents = loader.load()  # esto es una lista de páginas del documento
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200, add_start_index=True)
-    # chunks = text_splitter.split_documents(documents)
+    chunks = text_splitter.split_documents(documents)
     embeddings = OpenAIEmbeddings(model=settings.model.embedding_name, api_key=settings.model.api_key)
     #
     manage_db = DatabaseManager(embeddings)
@@ -28,8 +28,13 @@ def main():
             # manage_db.create_vector_db_if_not_exist()
             # manage_db.enable_pgvector_extension()
             vector_store = manage_db.initialize_vector_store()
+            if vector_store:
+                vector_store.add_documents(documents=chunks)
+            results = vector_store.similarity_search(
+                "How many distribution centers does Nike have in the US?"
+            )
+            print(results[0])
 
-            # Aquí puedes seguir usando vector_store
     except Exception as e:
         print(f"✗ Error: {e}")
         import traceback
