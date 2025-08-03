@@ -11,7 +11,7 @@ class SSHConnectionManager:
         try:
             self.tunnel = SSHTunnelForwarder(
                 ssh_address_or_host=(self.settings.ssh_connection.host_name, self.settings.ssh_connection.port),
-                remote_bind_address=("127.0.0.1", self.settings.ssh_connection.db_port),
+                remote_bind_address=("127.0.0.1", self.settings.database.db_port),
                 local_bind_address=("localhost", self.settings.ssh_connection.local_bind_port),
                 allow_agent=True,
             )
