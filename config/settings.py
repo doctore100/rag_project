@@ -42,8 +42,13 @@ class Settings(BaseSettings):
         return env_type.lower()
 
     @classmethod
-    def from_env_file(cls, env_file: Path | None = None):
-        """Factory method para crear Settings con archivo .env específico"""
-        if env_file:
-            return cls(_env_file=env_file)
-        return cls()
+    def from_env_file(cls, env_file: Path | None = None) -> "Settings":
+        """Factory method to create Settings instance with specific .env file.
+
+        Args:
+            env_file (Path | None): Path to an environment file. Uses default if None.
+
+        Returns:
+            Settings: New Settings instance configured with the specified env file.
+        """
+        return cls(_env_file=env_file) if env_file else cls()
