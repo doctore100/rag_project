@@ -1,26 +1,25 @@
-from contextlib import contextmanager
-
 from pydantic import BaseModel, Field, SecretStr
-from sshtunnel import SSHTunnelForwarder
 
 
 class SSHConnection(BaseModel):
     """
-    Represents an SSH connection configuration model.
+    Manages SSH connections for tunneling database connections.
 
-    This class is used to define and validate the configurations required
-    to establish an SSH connection to a remote server. The configuration
-    includes details such as hostname, port, username, and password.
+    Provides functionality to configure and manage an SSH tunnel to a remote
+    server, facilitating secure access to a remote database. The purpose of
+    this class is to abstract the SSH configuration requirements and enable
+    seamless integration within applications requiring SSH tunneling.
 
-    :ivar host: The hostname or IP address of the remote server.
-    :type host: String
-    :ivar port: The SSH port number for the connection.
-    :type port: Int
+    :ivar host_name: The hostname or IP address of the remote server.
+    :type host_name: str
+    :ivar port: SSH port of the remote server.
+    :type port: int
     :ivar username: The username to use for authentication.
-    :type username: String
-    :ivar password: The password to use for authentication. The password
-        is stored as a secret for enhanced security.
-    :type password: SecretStr
+    :type username: str
+    :ivar db_port: Remote PostgreSQL port for the SSH tunnel.
+    :type db_port: int
+    :ivar local_bind_port: Local port bound to the remote database.
+    :type local_bind_port: int
     """
     # 🛡️ SSH Tunnel configuration
     host_name: str = Field(..., description="The hostname or IP address of the remote server.")
