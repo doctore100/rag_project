@@ -1,24 +1,21 @@
-from pathlib import Path
 from os import getenv
+from pathlib import Path
+
 from .settings import Settings
 
 
 def create_settings() -> Settings:
     """
-    Creates and configures application settings based on the current environment.
+    Creates and initializes a `Settings` instance based on the project's environment configuration.
 
-    This function determines the root path of the project and reads the
-    current environment type (e.g., "development", "production", or
-    "testing") from the system's environment variables. Using this value,
-    the corresponding `.env` file is selected and used to instantiate the
-    Settings object. Additional validations and setup are performed
-    depending on the environment (e.g., production validations, logging
-    setup).
+    This function determines the application's environment by reading the `ENVIRONMENT` system 
+    environment variable. Based on its value, it selects the appropriate `.env` file for the 
+    environment. If no valid environment is specified, it defaults to the development environment. 
+    If the environment is set to production, additional validations are performed to ensure 
+    critical configurations are proper.
 
-    :raises ValueError: If required, production settings are not satisfied
-        when in production mode.
-
-    :return: The constructed Settings for the application.
+    :param: None
+    :return: A fully configured `Settings` instance.
     :rtype: Settings
     """
 
